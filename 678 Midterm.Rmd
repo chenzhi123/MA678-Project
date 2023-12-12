@@ -261,8 +261,6 @@ Based on the time series plot for "Total Mandates Over Time by Territory":
 
 # Model
 
-![](images/89d06ab33d163739f20e3c70e60a65a.png)
-
 ```{r}
 
 standardize <- function(x) {
@@ -277,6 +275,8 @@ since the FinalMandates is Skewed distribution, I will use a log transformation,
 
 ## Null Model
 
+$$log(FinalMandates +2)=\alpha $$
+
 ```{r}
 # Null Model
 null_model <- lm(log(FinalMandates+2) ~ 1 , data = election_data)
@@ -288,9 +288,11 @@ The intercept's estimate is approximately 0.87, suggesting that when no predicto
 
 The residuals, or differences between observed and predicted values, show minimal variation, with the first and third quartiles being the same. The residual standard error (RSE) is approximately 0.48, providing a measure of the typical size of the residuals.
 
-Overall, this null model indicates that, while we have a significantly non-zero intercept, the model does not explain any variability in the final mandates since no predictors are included. 
+Overall, this null model indicates that, while we have a significantly non-zero intercept, the model does not explain any variability in the final mandates since no predictors are included.
 
 ## Complete pooling model
+
+![](cp.png)
 
 ```{r}
 # 
@@ -304,11 +306,13 @@ model_complete_pooling <- lm(log(FinalMandates+2) ~ totalMandates + Mandates + P
 
 -   **Model Fit**: The model has a high Multiple R-squared value of approximately 0.837, indicating that around 83.7% of the variability in the log-transformed **FinalMandates** is explained by the model. This is a substantial amount, suggesting a good fit to the data.
 
--   **Residuals**: The residuals have a standard error of about 0.196, which is relatively low, suggesting that the model predictions are, on average, close to the actual log-transformed mandate counts. 
+-   **Residuals**: The residuals have a standard error of about 0.196, which is relatively low, suggesting that the model predictions are, on average, close to the actual log-transformed mandate counts.
 
 ## Negative Binomial model
 
 since the mean and the variance is not equal, I will try the negative binomial model to fit.
+
+![](nb.png)
 
 ```{r}
 
@@ -325,6 +329,8 @@ negbin_model <- glm.nb(log(FinalMandates+2) ~ totalMandates + Mandates + Percent
 -   **Theta Parameter**: The model's theta parameter is quite large, indicating a high level of overdispersion in the data that the negative binomial model is accounting for.
 
 ## No pooling model
+
+![](np.png)
 
 ```{r}
 
@@ -346,6 +352,8 @@ model_no_pooling_party <- lm(log(FinalMandates+2) ~ totalMandates + Mandates + P
 
 ## Partial Pooling model
 
+![](pp.png)
+
 ```{r}
 model_partial_pooling_party <- lmer(log(FinalMandates+2) ~ totalMandates + Mandates + Percentage + validVotesPercentage +
                                     Votes + numParishes + totalVoters + pre.totalVoters  + (1 | Party), 
@@ -361,6 +369,8 @@ model_partial_pooling_party <- lmer(log(FinalMandates+2) ~ totalMandates + Manda
 -   **Random Effects**: The random effect for **Party** has a very small variance, suggesting that there is minimal variability in the log-transformed **FinalMandates** between different parties that is not explained by the fixed effects. This could indicate that the fixed effects are capturing most of the differences between parties.
 
 ## Interaction
+
+![](inter.png)
 
 ```{r}
 model_with_interactions <- lmer(log(FinalMandates+2) ~ totalMandates * Percentage + validVotesPercentage * Votes +
